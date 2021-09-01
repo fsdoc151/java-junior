@@ -19,14 +19,20 @@ public class FileSaver extends ValidatingSaver {
         this.bufferSize = bufferSize;
         this.filePath = filePath;
         this.isAppended = isAppended;
+        FileOutputStream fileOutputStream = null;
         try {
-            this.writer = new BufferedWriter(
-                    new OutputStreamWriter(
-                            new BufferedOutputStream(
-                                    new FileOutputStream(filePath, isAppended), bufferSize), encoding));
+            fileOutputStream = new FileOutputStream(filePath, isAppended);
+            OutputStreamWriter intermediaryWriter = new OutputStreamWriter(
+                    new BufferedOutputStream(fileOutputStream, bufferSize), encoding);
+            this.writer = new BufferedWriter(intermediaryWriter);
         } catch (FileNotFoundException e) {
             throw new SaveException(SaveException.FILE_NOT_FOUND, e);
         } catch (UnsupportedEncodingException e) {
+            try {
+                fileOutputStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             throw new SaveException(SaveException.UNSUPPORTED_ENCODING, e);
         }
     }
@@ -49,4 +55,5 @@ public class FileSaver extends ValidatingSaver {
             throw new SaveException(SaveException.ON_CLOSE_FILE_ERROR, e);
         }
     }
+
 }

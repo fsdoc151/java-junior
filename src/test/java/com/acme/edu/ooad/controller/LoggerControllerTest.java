@@ -1,9 +1,6 @@
 package com.acme.edu.ooad.controller;
 
-import com.acme.edu.ooad.exception.FlushException;
-import com.acme.edu.ooad.exception.LogException;
-import com.acme.edu.ooad.exception.SaveException;
-import com.acme.edu.ooad.exception.ValidateException;
+import com.acme.edu.ooad.exception.*;
 import com.acme.edu.ooad.message.Message;
 import com.acme.edu.ooad.saver.ValidatingSaver;
 import org.junit.jupiter.api.Test;
@@ -80,4 +77,16 @@ public class LoggerControllerTest {
         controllerSut.log(logMessageStub);
         assertEquals(newInstanceMessageStub, controllerSut.lastLoggedMessage);
     }
+
+    @Test
+    public void shouldCloseSaverWhenClose() throws CloseException, SaveException {
+        controllerSut.close();
+        verify(saverMock, times(1)).close();
+    }
+    @Test
+    public void shouldGetCloseErrorWhenSaverThrowsError() throws SaveException {
+        doThrow(SaveException.class).when(saverMock).close();
+        assertThrows(CloseException.class, ()->controllerSut.close());
+    }
+
 }

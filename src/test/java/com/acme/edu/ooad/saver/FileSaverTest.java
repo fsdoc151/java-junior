@@ -5,22 +5,25 @@ import com.acme.edu.ooad.exception.SaveException;
 import com.acme.edu.ooad.exception.ValidateException;
 import com.acme.edu.ooad.message.Message;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class FileSaverTest {
-    private static String filePath = "outputTest.log";
+    private static final String filePath = "outputTest.log";
 
     @AfterAll
-    public static void tearsDown() throws IOException {
+    public static void tearsDown() throws IOException, InterruptedException {
+        Thread.sleep(10000);
         Files.deleteIfExists(Path.of(filePath));
     }
 
@@ -42,4 +45,47 @@ public class FileSaverTest {
             throw new ReadException(ReadException.ON_OPEN_FILE_ERROR, e);
         }
     }
+
+    @Test
+    public void shouldGetErrorWhenFileNotFound() {
+        SaveException exception = assertThrows(SaveException.class,
+                () -> new FileSaver(Charset.defaultCharset().toString(), 256,
+                        "unreachableDir/"+filePath, false).close());
+        assertTrue(exception.getMessage().contains(SaveException.FILE_NOT_FOUND));
+    }
+
+    @Test
+    public void shouldGetErrorWhenEncodingUnsupported() {
+        SaveException exception = assertThrows(SaveException.class,
+                () -> new FileSaver("UNSUPPORTED-CHARSET", 256,
+                        filePath, false).close());
+        assertTrue(exception.getMessage().contains(SaveException.UNSUPPORTED_ENCODING));
+    }
+
+    @Test
+    public void shouldGetErrorWhenMessageIsNull() throws SaveException {
+        Message nullMessage = null;
+        Saver saver = new FileSaver(Charset.defaultCharset().toString(), 256,
+                filePath, false);
+        assertThrows(
+                ValidateException.class,
+                () -> saver.save(nullMessage)
+        );
+        saver.close();
+    }
+
+    @Test
+    public void shouldGetErrorWhenMessageIsEmpty() throws SaveException {
+        Saver saver = new FileSaver(Charset.defaultCharset().toString(), 256,
+                filePath, false);
+        Message emptyMessageStub = mock(Message.class);
+        when(emptyMessageStub.getBody()).thenReturn("");
+
+        assertThrows(
+                ValidateException.class,
+                () -> saver.save(emptyMessageStub)
+        );
+        saver.close();
+    }
+
 }
