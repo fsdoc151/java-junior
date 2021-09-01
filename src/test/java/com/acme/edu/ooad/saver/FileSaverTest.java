@@ -50,7 +50,7 @@ public class FileSaverTest {
     public void shouldGetErrorWhenFileNotFound() {
         SaveException exception = assertThrows(SaveException.class,
                 () -> new FileSaver(Charset.defaultCharset().toString(), 256,
-                        "unreachableDir/"+filePath, false).close());
+                        "unreachableDir/" + filePath, false).close());
         assertTrue(exception.getMessage().contains(SaveException.FILE_NOT_FOUND));
     }
 

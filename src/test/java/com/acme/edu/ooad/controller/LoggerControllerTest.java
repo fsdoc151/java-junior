@@ -83,10 +83,11 @@ public class LoggerControllerTest {
         controllerSut.close();
         verify(saverMock, times(1)).close();
     }
+
     @Test
     public void shouldGetCloseErrorWhenSaverThrowsError() throws SaveException {
         doThrow(SaveException.class).when(saverMock).close();
-        assertThrows(CloseException.class, ()->controllerSut.close());
+        assertThrows(CloseException.class, () -> controllerSut.close());
     }
 
 }
