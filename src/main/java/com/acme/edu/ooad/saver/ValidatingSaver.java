@@ -1,14 +1,13 @@
 package com.acme.edu.ooad.saver;
 
-import com.acme.edu.ooad.exception.SaveException;
+import com.acme.edu.ooad.exception.ValidateException;
 import com.acme.edu.ooad.message.Message;
 
 public abstract class ValidatingSaver implements Saver {
 
-    @Override
-    public void save(Message message) throws SaveException {
-        if (message == null) throw new SaveException(new IllegalArgumentException("Message to save is null"));
+    public void validate(Message message) throws ValidateException {
+        if (message == null) throw new ValidateException(new IllegalArgumentException("Message to save is null"));
         if (message.getBody().isEmpty())
-            throw new SaveException(new IllegalArgumentException("Message to save is empty"));
+            throw new ValidateException(new IllegalArgumentException("Message to save is empty"));
     }
 }
