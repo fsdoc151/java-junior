@@ -11,4 +11,8 @@ public class ConsoleSaver extends ValidatingSaver {
         super.validate(message);
         System.out.println(message);
     }
+
+    @Override
+    public void close() {
+    }
 }

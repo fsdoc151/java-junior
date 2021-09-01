@@ -1,9 +1,9 @@
 package com.acme.edu.ooad;
 
 import com.acme.edu.ooad.controller.LoggerController;
+import com.acme.edu.ooad.exception.CloseException;
 import com.acme.edu.ooad.exception.FlushException;
 import com.acme.edu.ooad.exception.LogException;
-import com.acme.edu.ooad.exception.SaveException;
 import com.acme.edu.ooad.message.*;
 import com.acme.edu.ooad.saver.ConsoleSaver;
 import com.acme.edu.ooad.saver.ValidatingSaver;
@@ -15,8 +15,7 @@ public class Logger {
         controller.setSaver(saver);
     }
 
-    public static void close() throws SaveException, FlushException {
-        controller.flush();
+    public static void close() throws CloseException {
         controller.close();
     }
 

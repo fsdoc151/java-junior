@@ -23,7 +23,6 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
 
     @AfterEach
     public void tearDown() throws SaveException, FlushException {
-        Logger.close();
         resetOut();
     }
     //endregion

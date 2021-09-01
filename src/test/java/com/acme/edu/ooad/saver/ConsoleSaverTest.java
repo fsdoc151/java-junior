@@ -18,7 +18,7 @@ public class ConsoleSaverTest implements SysoutCaptureAndAssertionAbility {
         Message nullMessage = null;
 
         assertThrows(
-                SaveException.class,
+                ValidateException.class,
                 () -> saver.save(nullMessage)
         );
     }
@@ -29,7 +29,7 @@ public class ConsoleSaverTest implements SysoutCaptureAndAssertionAbility {
         when(emptyMessageStub.getBody()).thenReturn("");
 
         assertThrows(
-                SaveException.class,
+                ValidateException.class,
                 () -> saver.save(emptyMessageStub)
         );
     }
