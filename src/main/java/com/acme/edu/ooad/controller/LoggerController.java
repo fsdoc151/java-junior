@@ -1,8 +1,6 @@
 package com.acme.edu.ooad.controller;
 
-import com.acme.edu.ooad.exception.FlushException;
-import com.acme.edu.ooad.exception.LogException;
-import com.acme.edu.ooad.exception.SaveException;
+import com.acme.edu.ooad.exception.*;
 import com.acme.edu.ooad.message.EmptyMessage;
 import com.acme.edu.ooad.message.Message;
 import com.acme.edu.ooad.saver.ValidatingSaver;
@@ -19,11 +17,19 @@ public class LoggerController {
         this.saver = saver;
     }
 
+    public void close() throws CloseException {
+        try {
+            this.saver.close();
+        } catch (SaveException e) {
+            throw new CloseException(e);
+        }
+    }
+
     public void flush() throws FlushException {
         try {
             saver.save(lastLoggedMessage);
             lastLoggedMessage = new EmptyMessage();
-        } catch (SaveException e) {
+        } catch (SaveException | ValidateException e) {
             throw new FlushException(e);
         }
     }
@@ -35,7 +41,7 @@ public class LoggerController {
         if (messageToPrint != null) {
             try {
                 saver.save(messageToPrint);
-            } catch (SaveException e) {
+            } catch (SaveException | ValidateException e) {
                 throw new LogException(e);
             }
         }

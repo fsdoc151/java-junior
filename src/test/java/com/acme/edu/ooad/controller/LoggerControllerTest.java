@@ -1,8 +1,6 @@
 package com.acme.edu.ooad.controller;
 
-import com.acme.edu.ooad.exception.FlushException;
-import com.acme.edu.ooad.exception.LogException;
-import com.acme.edu.ooad.exception.SaveException;
+import com.acme.edu.ooad.exception.*;
 import com.acme.edu.ooad.message.Message;
 import com.acme.edu.ooad.saver.ValidatingSaver;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,7 @@ public class LoggerControllerTest {
     private LoggerController controllerSut = new LoggerController(saverMock);
 
     @Test
-    public void shouldSaveLastLoggedMessageWhenFlushAndLastLoggedMessageIsNotNull() {
+    public void shouldSaveLastLoggedMessageWhenFlushAndLastLoggedMessageIsNotNull() throws SaveException, ValidateException {
         Message messageStub = mock(Message.class);
         controllerSut.lastLoggedMessage = messageStub;
         try {
@@ -25,15 +23,11 @@ public class LoggerControllerTest {
             e.printStackTrace();
         }
 
-        try {
-            verify(saverMock, times(1)).save(messageStub);
-        } catch (SaveException e) {
-            e.printStackTrace();
-        }
+        verify(saverMock, times(1)).save(messageStub);
     }
 
     @Test
-    public void shouldGetFlushErrorWhenSaverGetError() throws SaveException {
+    public void shouldGetFlushErrorWhenSaverGetError() throws SaveException, ValidateException {
         Message emptyMessageStub = mock(Message.class);
         controllerSut.lastLoggedMessage = emptyMessageStub;
         doThrow(SaveException.class).when(saverMock).save(emptyMessageStub);
@@ -45,7 +39,7 @@ public class LoggerControllerTest {
     }
 
     @Test
-    public void shouldGetLogErrorWhenSaverGetError() throws SaveException {
+    public void shouldGetLogErrorWhenSaverGetError() throws SaveException, ValidateException {
         Message messageStub = mock(Message.class);
 
         Message lastLoggedMessageStub = mock(Message.class);
@@ -61,38 +55,39 @@ public class LoggerControllerTest {
     }
 
     @Test
-    public void shouldSaveInstanceToPrintWhenLogAndLastLoggedMessageIsNotNull() {
+    public void shouldSaveInstanceToPrintWhenLogAndLastLoggedMessageIsNotNull() throws LogException, SaveException, ValidateException {
         Message logMessageStub = mock(Message.class);
         controllerSut.lastLoggedMessage = mock(Message.class);
         Message saveMessageStub = mock(Message.class);
         when(controllerSut.lastLoggedMessage.getInstanceToPrint(logMessageStub))
                 .thenReturn(saveMessageStub);
 
-        try {
-            controllerSut.log(logMessageStub);
-        } catch (LogException e) {
-            e.printStackTrace();
-        }
-        try {
-            verify(saverMock, times(1)).save(saveMessageStub);
-        } catch (SaveException e) {
-            e.printStackTrace();
-        }
+        controllerSut.log(logMessageStub);
+        verify(saverMock, times(1)).save(saveMessageStub);
     }
 
     @Test
-    public void shouldUpdateLastLoggedMessageWhenLogAndLastLoggedMessageIsNotNull() {
+    public void shouldUpdateLastLoggedMessageWhenLogAndLastLoggedMessageIsNotNull() throws LogException {
         Message logMessageStub = mock(Message.class);
         Message newInstanceMessageStub = mock(Message.class);
         controllerSut.lastLoggedMessage = mock(Message.class);
         when(controllerSut.lastLoggedMessage.getNewInstance(logMessageStub))
                 .thenReturn(newInstanceMessageStub);
 
-        try {
-            controllerSut.log(logMessageStub);
-        } catch (LogException e) {
-            e.printStackTrace();
-        }
+        controllerSut.log(logMessageStub);
         assertEquals(newInstanceMessageStub, controllerSut.lastLoggedMessage);
     }
+
+    @Test
+    public void shouldCloseSaverWhenClose() throws CloseException, SaveException {
+        controllerSut.close();
+        verify(saverMock, times(1)).close();
+    }
+
+    @Test
+    public void shouldGetCloseErrorWhenSaverThrowsError() throws SaveException {
+        doThrow(SaveException.class).when(saverMock).close();
+        assertThrows(CloseException.class, () -> controllerSut.close());
+    }
+
 }

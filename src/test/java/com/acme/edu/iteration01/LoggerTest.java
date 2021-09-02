@@ -2,6 +2,7 @@ package com.acme.edu.iteration01;
 
 import com.acme.edu.SysoutCaptureAndAssertionAbility;
 import com.acme.edu.ooad.Logger;
+import com.acme.edu.ooad.exception.CloseException;
 import com.acme.edu.ooad.exception.FlushException;
 import com.acme.edu.ooad.exception.LogException;
 import org.junit.jupiter.api.AfterEach;
@@ -19,7 +20,7 @@ public class LoggerTest implements SysoutCaptureAndAssertionAbility {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws FlushException, CloseException {
         resetOut();
     }
     //endregion
